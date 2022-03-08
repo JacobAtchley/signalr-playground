@@ -21,4 +21,14 @@ public class ChatHub : Hub
 
         return base.OnConnectedAsync();
     }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        _logger.LogInformation(
+            "User disconnected from chat hub. {UserId} {ConnectionId}",
+            Context.UserIdentifier,
+            Context.ConnectionId);
+
+        return base.OnDisconnectedAsync(exception);
+    }
 }
