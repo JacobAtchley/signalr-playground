@@ -19,12 +19,12 @@
     <br/>
     <div class="mat-layout-grid-inner">
         <div class="mat-layout-grid-cell">
-            <MatSelect Label="Select Group" @bind-Value="_selectedGroup">
+            <MatChipSet Filter="true" @bind-SelectedChips="_selectedGroups">
                 @foreach (var group in Users.Groups)
                 {
-                    <MatOption TValue="string" Value="group">@group</MatOption>
+                    <MatChip Label="@group" IsCheckable="true"></MatChip>
                 }
-            </MatSelect>
+            </MatChipSet>
         </div>
         <div class="mat-layout-grid-cell">
             <MatButton Raised="true" OnClick="SendGroupMessage">Send A Group Message</MatButton>
@@ -47,20 +47,21 @@
         });
     }
 
-    private Task SendGroupMessage()
+    private async Task SendGroupMessage()
     {
-        if (string.IsNullOrWhiteSpace(_selectedGroup))
+        if (_selectedGroups is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        Console.WriteLine($"Sending message to group {_selectedGroup}");
+        var tasks = _selectedGroups
+            .Select(x => _hubContext.Clients.Group(x.Label).SendAsync("broadcastMessage", new Message()
+            {
+                Date = DateTimeOffset.UtcNow,
+                Text = $"Hello Group {x.Label} from {_userName}"
+            }));
 
-        return _hubContext.Clients.Group(_selectedGroup).SendAsync("broadcastMessage", new Message
-        {
-            Date = DateTimeOffset.UtcNow,
-            Text = $"Hello Group {_selectedGroup} {Guid.NewGuid()}"
-        });
+        await Task.WhenAll(tasks);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -75,6 +76,6 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private string? _selectedGroup;
     private string? _userName;
+    private MatChip[]? _selectedGroups;
 }
