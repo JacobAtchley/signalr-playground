@@ -1,11 +1,14 @@
 @page "/signalr"
 @using Microsoft.AspNetCore.SignalR
 @using web.Data
+@using System.Text.Json
 @inject IHubContext<ChatHub> _hubContext;
+@inject IJSRuntime _jsRuntime;
 
 <PageTitle>Signal R</PageTitle>
 
 <MatH3>Signal R</MatH3>
+<MatH6>Connected as @_userName</MatH6>
 
 <div class="mat-layout-grid mat-layout-grid-align-left" style="max-width: 800px;">
     <div class="mat-layout-grid-inner">
@@ -40,7 +43,7 @@
         return _hubContext.Clients.All.SendAsync("broadcastMessage", new Message
         {
             Date = DateTimeOffset.UtcNow,
-            Text = $"Hello from server {Guid.NewGuid()}"
+            Text = $"Hello from {_userName} {Guid.NewGuid()}"
         });
     }
 
@@ -60,5 +63,18 @@
         });
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await _jsRuntime.InvokeAsync<JsonElement>("window.signalrPlayGroundContext");
+            _userName = result.GetProperty("userName").GetString();
+            StateHasChanged();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     private string? _selectedGroup;
+    private string? _userName;
 }

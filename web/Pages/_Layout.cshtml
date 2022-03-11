@@ -40,6 +40,10 @@
             .then(res => res.text())
             .then(userName => {
                 const group = userName.split('_')[0];
+                window.signalrPlayGroundContext = () =>({
+                    group,
+                    userName,
+                });
                 const connection = new signalR.HubConnectionBuilder().withUrl(`/chat?userName=${userName}&group=${group}`).build();
 
                 connection.on('broadcastMessage', function (payload){
