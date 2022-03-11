@@ -27,7 +27,10 @@ builder.Services.AddMatToaster(config =>
     config.VisibleStateDuration = 3000;
 });
 
-builder.Services.AddSignalR().AddAzureSignalR();
+builder.Services.AddSignalR()
+    .AddHubOptions<ChatHub>(chatHubOptions => chatHubOptions.AddFilter( new ChatHubFilter()))
+    .AddAzureSignalR()
+    ;
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();
 
 var app = builder.Build();
@@ -51,5 +54,5 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 
-app.MapGet("/api/signal-r/list-members", () => new List<string>());
+app.MapGet("/api/username", Users.GenerateUserName);
 app.Run();

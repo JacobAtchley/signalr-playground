@@ -1,25 +1,39 @@
 @page "/signalr"
 @using Microsoft.AspNetCore.SignalR
+@using web.Data
 @inject IHubContext<ChatHub> _hubContext;
 
 <PageTitle>Signal R</PageTitle>
 
-<MatH5>Signal R</MatH5>
+<MatH3>Signal R</MatH3>
 
-<MatButton Raised="true" OnClick="SendNewMessage">Send A New Message</MatButton>
+<div class="mat-layout-grid mat-layout-grid-align-left" style="max-width: 800px;">
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell">
+            <MatButton Raised="true" OnClick="SendNewMessage">Send A New Message</MatButton>
+        </div>
+    </div>
+    <br/>
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell">
+            <MatSelect Label="Select Group" @bind-Value="_selectedGroup">
+                @foreach (var group in Users.Groups)
+                {
+                    <MatOption TValue="string" Value="group">@group</MatOption>
+                }
+            </MatSelect>
+        </div>
+        <div class="mat-layout-grid-cell">
+            <MatButton Raised="true" OnClick="SendGroupMessage">Send A Group Message</MatButton>
+        </div>
+    </div>
+</div>
 
 <ul class="mdc-list" style="" aria-orientation="vertical" id="messageEvents">
 
 </ul>
 
 @code {
-
-    public class Message
-    {
-        public string? Text { get; set; }
-
-        public DateTimeOffset? Date { get; set; }
-    }
 
     private Task SendNewMessage()
     {
@@ -30,4 +44,21 @@
         });
     }
 
+    private Task SendGroupMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedGroup))
+        {
+            return Task.CompletedTask;
+        }
+
+        Console.WriteLine($"Sending message to group {_selectedGroup}");
+
+        return _hubContext.Clients.Group(_selectedGroup).SendAsync("broadcastMessage", new Message
+        {
+            Date = DateTimeOffset.UtcNow,
+            Text = $"Hello Group {_selectedGroup} {Guid.NewGuid()}"
+        });
+    }
+
+    private string? _selectedGroup;
 }
