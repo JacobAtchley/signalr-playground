@@ -1,3 +1,4 @@
+using Coravel;
 using MatBlazor;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,8 @@ builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
     opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
 builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
 builder.Services.AddTransient<IBroadcastService, BroadcastService>();
+builder.Services.AddScheduler();
+builder.Services.AddTransient<UserSessionWatchDog>();
 
 var app = builder.Build();
 
@@ -60,5 +63,10 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 app.MapGet("/api/username", Users.GenerateUserName);
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler.Schedule<UserSessionWatchDog>().EveryThirtySeconds();
+});
 
 await app.RunAsync();

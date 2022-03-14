@@ -14,4 +14,6 @@ public interface IUserSessionStore
     Task AddUserSessionAsync(UserSessionRecord record, CancellationToken cancellationToken);
 
     Task RemoveUserSessionAsync(string connectionId, CancellationToken cancellationToken);
+
+    Task RemoveAsync(Expression<Func<UserSessionRecord, bool>> filter, CancellationToken cancellationToken);
 }

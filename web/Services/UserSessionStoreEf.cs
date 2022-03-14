@@ -53,12 +53,15 @@ public class UserSessionStoreEf : IUserSessionStore
     }
 
     public async Task RemoveUserSessionAsync(string connectionId, CancellationToken cancellationToken)
+        => RemoveAsync(x => x.ConnectionId == connectionId, cancellationToken);
+
+    public async Task RemoveAsync(Expression<Func<UserSessionRecord, bool>> filter, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var sessions = await context
             .UserSessions
-            .Where(x => x.ConnectionId == connectionId)
+            .Where(filter)
             .ToArrayAsync(cancellationToken);
 
         context.RemoveRange(sessions);
