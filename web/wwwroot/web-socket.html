@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <script>
+            const endChar = String.fromCharCode(30);
+
+            function logEvent(primary, secondary){
+                const events = document.getElementById('messageEvents');
+
+                if (!events)
+                {
+                    return;
+                }
+
+                const message = `<li class=" mdc-list-item mdc-ripple-upgraded">
+                                        <span class=" mdc-list-item__text" style="">
+                                            <span class=" mdc-list-item__primary-text" style="">${primary}</span>
+                                            <span class=" mdc-list-item__secondary-text" style="">${secondary}</span>
+                                        </span>
+                                    </li>
+                                    <br>
+                                    <li role="separator" class=" mdc-list-divider" style=""></li>`;
+
+                events.insertAdjacentHTML('beforeend', message);
+            }
+
+            function connectToSignalR(userName, group){
+                const url = `https://localhost:7212/chat/negotiate?userName=${userName}&group=${group}&negotiateVersion=1`;
+
+                fetch(url, {method: 'POST'})
+                    .then(x => x.json())
+                    .then(payload => {
+                        negotiateConnection(payload.url, payload.accessToken);
+                    });
+            }
+
+            function negotiateConnection(url, accessToken){
+                let negotiateUrl = url.replace('?hub', 'negotiate?hub');
+
+                fetch(negotiateUrl, {
+                    method: 'POST',
+                    headers: {'Authorization': `Bearer ${accessToken}`}
+                }).then(x => x.json()).then(r => {
+                    openWebSocket(url, r.connectionId, accessToken);
+                });
+            }
+
+            function openWebSocket(url, connectionId, accessToken){
+                let webSocketUrl = url.replace('https://', 'wss://');
+
+                webSocketUrl = `${webSocketUrl}&id=${connectionId}&access_token=${accessToken}`;
+                const socket = new WebSocket(webSocketUrl);
+
+                socket.addEventListener('open', () => {
+                    socket.send(`{"protocol":"json","version":1}${endChar}`);
+                    socket.send(`{"type":6}${endChar}`);
+                });
+
+                socket.addEventListener('message', event => {
+                    if(event.isTrusted){
+                        var data = JSON.parse(event.data.replace(endChar, ''));
+                        if(data.type && data.type == 1 && data.target && data.target == 'broadcastMessage'){
+                            var messageData = (data.arguments || [])[0];
+                            console.log('received broad cast message', messageData);
+                            logEvent(messageData.text, messageData.date);
+                        }
+                    }
+                });
+            }
+
+            fetch('/api/username')
+                .then(res => res.text())
+                .then(userName => {
+                    const group = userName.split('_')[0];
+                    connectToSignalR(userName, group);
+                });
+        </script>
+    </head>
+    <body>
+        <p>
+            Werking
+        </p>
+        <ul id="messageEvents">
+
+        </ul>
+    </body>
+</html>

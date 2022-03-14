@@ -41,6 +41,7 @@ builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
 builder.Services.AddTransient<IBroadcastService, BroadcastService>();
 builder.Services.AddScheduler();
 builder.Services.AddTransient<UserSessionWatchDog>();
+builder.Services.AddTransient<MessageBroadcaster>();
 
 var app = builder.Build();
 
@@ -67,6 +68,7 @@ app.MapGet("/api/username", Users.GenerateUserName);
 app.Services.UseScheduler(scheduler =>
 {
     scheduler.Schedule<UserSessionWatchDog>().EveryThirtySeconds();
+    scheduler.Schedule<MessageBroadcaster>().EverySecond();
 });
 
 await app.RunAsync();
