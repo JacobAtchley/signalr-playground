@@ -4,7 +4,7 @@ import http from 'k6/http';
 
 export const options = {
     vus: 100,
-    duration: '15s',
+    duration: '30s',
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
       'http_req_duration{status:500}': ['max>=0'],
@@ -37,7 +37,7 @@ export default function () {
 
         const res = ws.connect(webSocketUrl, null, socket => {
             socket.on('open', () => {
-                console.log('connected');
+                //console.log('connected');
                 socket.send(`{"protocol":"json","version":1}${endChar}`);
                 socket.send(`{"type":6}${endChar}`);
 
@@ -45,9 +45,9 @@ export default function () {
                     socket.close();
                 }, 1000 * 10);
             });
-            socket.on('close', () => console.log('disconnected'));
+            //socket.on('close', () => console.log('disconnected'));
             socket.on('message', event => {
-                console.log('message', event);
+                //console.log('message', event);
             });
         });
 

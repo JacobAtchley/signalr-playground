@@ -7,7 +7,6 @@ public class ChatHubFilter: IHubFilter
     public async ValueTask<object?> InvokeMethodAsync(
         HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object?>> next)
     {
-        Console.WriteLine($"Calling hub method '{invocationContext.HubMethodName}'");
         try
         {
             return await next(invocationContext);
@@ -22,7 +21,6 @@ public class ChatHubFilter: IHubFilter
     // Optional method
     public Task OnConnectedAsync(HubLifetimeContext context, Func<HubLifetimeContext, Task> next)
     {
-        Console.WriteLine("###############");
         return next(context);
     }
 
@@ -30,7 +28,6 @@ public class ChatHubFilter: IHubFilter
     public Task OnDisconnectedAsync(
         HubLifetimeContext context, Exception? exception, Func<HubLifetimeContext, Exception, Task> next)
     {
-        Console.WriteLine("$$$$$$$$$$$$$$$$");
         return next(context, exception!);
     }
 }

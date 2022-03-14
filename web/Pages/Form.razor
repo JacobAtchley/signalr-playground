@@ -144,7 +144,6 @@
         {
             Saving = true;
             await Task.Delay(1_000);
-            Console.WriteLine("Form Is Valid");
             Saving = false;
             Toaster?.Add("Form Saved!", MatToastType.Success, "Form Info", "thumb_up");
         }
