@@ -1,7 +1,9 @@
 using MatBlazor;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using web;
 using web.Data;
+using web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +31,13 @@ builder.Services.AddMatToaster(config =>
 
 builder.Services.AddSignalR()
     .AddHubOptions<ChatHub>(chatHubOptions => chatHubOptions.AddFilter( new ChatHubFilter()))
-    .AddAzureSignalR()
-    ;
+    .AddAzureSignalR();
+
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();
+builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
+    opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
+builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
+builder.Services.AddTransient<IBroadcastService, BroadcastService>();
 
 var app = builder.Build();
 
@@ -53,6 +59,6 @@ app.UseEndpoints(endpoints => endpoints.MapHub<ChatHub>("/chat"));
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-
 app.MapGet("/api/username", Users.GenerateUserName);
-app.Run();
+
+await app.RunAsync();

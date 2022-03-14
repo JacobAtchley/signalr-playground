@@ -1,8 +1,8 @@
 @page "/signalr"
-@using Microsoft.AspNetCore.SignalR
 @using web.Data
 @using System.Text.Json
-@inject IHubContext<ChatHub> _hubContext;
+@using web.Services
+@inject IBroadcastService _broadcastService
 @inject IJSRuntime _jsRuntime;
 
 <PageTitle>Signal R</PageTitle>
@@ -14,6 +14,12 @@
     <div class="mat-layout-grid-inner">
         <div class="mat-layout-grid-cell">
             <MatButton Raised="true" OnClick="SendNewMessage">Send A New Message</MatButton>
+        </div>
+    </div>
+    <br/>
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell">
+            <MatButton Raised="true" OnClick="SendNewFilteredMessage">Send A Filtered Message</MatButton>
         </div>
     </div>
     <br/>
@@ -40,11 +46,13 @@
 
     private Task SendNewMessage()
     {
-        return _hubContext.Clients.All.SendAsync("broadcastMessage", new Message
+        var payload = new Message
         {
             Date = DateTimeOffset.UtcNow,
             Text = $"Hello from {_userName} {Guid.NewGuid()}"
-        });
+        };
+
+        return _broadcastService.BroadcastAsync("broadcastMessage", payload, default);
     }
 
     private async Task SendGroupMessage()
@@ -54,14 +62,17 @@
             return;
         }
 
-        var tasks = _selectedGroups
-            .Select(x => _hubContext.Clients.Group(x.Label).SendAsync("broadcastMessage", new Message()
-            {
-                Date = DateTimeOffset.UtcNow,
-                Text = $"Hello Group {x.Label} from {_userName}"
-            }));
+        var payload = new Message
+        {
+            Date = DateTimeOffset.UtcNow,
+            Text = $"Hello from {_userName} {Guid.NewGuid()}"
+        };
 
-        await Task.WhenAll(tasks);
+        foreach (var group in _selectedGroups)
+        {
+            await _broadcastService.BroadcastAsync(group.Label, "broadcastMessage", payload, default);
+        }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -78,4 +89,16 @@
 
     private string? _userName;
     private MatChip[]? _selectedGroups;
+
+    private async Task SendNewFilteredMessage()
+    {
+        var payload = new Message
+        {
+            Date = DateTimeOffset.UtcNow,
+            Text = $"Hello from {_userName} a filtered message {Guid.NewGuid()}"
+        };
+
+        await _broadcastService.BroadcastAsync("broadcastMessage", payload, x => !x.UserName.Contains("Homer"), default);
+    }
+
 }
