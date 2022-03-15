@@ -8,8 +8,8 @@ public class ServerlessQueueListener : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
 
-    private ServiceBusClient _client;
-    private ServiceBusProcessor _processor;
+    private ServiceBusClient? _client;
+    private ServiceBusProcessor? _processor;
 
     public ServerlessQueueListener(IConfiguration configuration, IServiceProvider serviceProvider)
     {
@@ -28,9 +28,16 @@ public class ServerlessQueueListener : BackgroundService
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _processor.StopProcessingAsync(cancellationToken);
-        await _processor.DisposeAsync();
-        await _client.DisposeAsync();
+        if (_processor is not null)
+        {
+            await _processor.StopProcessingAsync(cancellationToken)!;
+            await _processor.DisposeAsync();
+        }
+
+        if (_client is not null)
+        {
+            await _client.DisposeAsync();
+        }
 
         await base.StopAsync(cancellationToken);
     }
@@ -46,7 +53,12 @@ public class ServerlessQueueListener : BackgroundService
         try
         {
             var message = arg.Message.Body.ToObjectFromJson<QueueMessage?>();
-            var connectionId = message?.Data.ConnectionId;
+
+            if (message is null)
+            {
+                return;
+            }
+            var connectionId = message.Data?.ConnectionId;
 
             if (string.IsNullOrWhiteSpace(connectionId))
             {
@@ -55,10 +67,15 @@ public class ServerlessQueueListener : BackgroundService
 
             var sessionStore = _serviceProvider.GetService<IUserSessionStore>();
 
+            if (sessionStore is null)
+            {
+                return;
+            }
+
             if (message.IsConnectedEvent)
             {
                 var record = new UserSessionRecord(Guid.NewGuid(),
-                    message.Data.UserId,
+                    message.Data?.UserId,
                     string.Empty,
                     connectionId,
                     DateTimeOffset.UtcNow);

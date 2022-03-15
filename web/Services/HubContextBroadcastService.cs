@@ -24,7 +24,7 @@ public class HubContextBroadcastService : IBroadcastService
 
     private async Task SendMessageToClientsAsync<TPayload>( IEnumerable<UserSessionRecord> users, string eventName, TPayload? payload, CancellationToken cancellationToken)
     {
-        if (payload != null)
+        if (payload is not null)
         {
             await _hubContext.Clients
                 .Clients(users.Select(x => x.ConnectionId))

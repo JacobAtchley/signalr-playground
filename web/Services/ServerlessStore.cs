@@ -1,5 +1,4 @@
 using Microsoft.Azure.SignalR.Management;
-using Microsoft.Extensions.Azure;
 
 namespace web.Services;
     public interface IHubContextStore

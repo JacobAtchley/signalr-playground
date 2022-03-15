@@ -6,7 +6,7 @@ namespace web.Services;
 
 public class UserSessionStoreDbContext : DbContext
 {
-    public DbSet<UserSessionRecord> UserSessions { get; set; }
+    public DbSet<UserSessionRecord>? UserSessions { get; set; }
 
     public UserSessionStoreDbContext(DbContextOptions<UserSessionStoreDbContext> options) : base(options)
     {
@@ -27,21 +27,21 @@ public class UserSessionStoreEf : IUserSessionStore
     public async Task<IEnumerable<UserSessionRecord>> GetUserSessionsAsync(CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var sessions = await context.UserSessions.AsNoTracking().ToArrayAsync(cancellationToken);
+        var sessions = await context.UserSessions!.AsNoTracking().ToArrayAsync(cancellationToken);
         return sessions;
     }
 
     public async Task<IEnumerable<UserSessionRecord>> GetUserSessionsByGroupAsync(string group, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var sessions = await context.UserSessions.AsNoTracking().Where(x => x.Group == group).ToArrayAsync(cancellationToken);
+        var sessions = await context.UserSessions!.AsNoTracking().Where(x => x.Group == group).ToArrayAsync(cancellationToken);
         return sessions;
     }
 
     public async Task<IEnumerable<UserSessionRecord>> GetUserSessionsByFilterAsync(Expression<Func<UserSessionRecord, bool>> filter, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var sessions = await context.UserSessions.AsNoTracking().Where(filter).ToArrayAsync(cancellationToken);
+        var sessions = await context.UserSessions!.AsNoTracking().Where(filter).ToArrayAsync(cancellationToken);
         return sessions;
     }
 
@@ -60,7 +60,7 @@ public class UserSessionStoreEf : IUserSessionStore
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         object[] sessions = await context
-            .UserSessions
+            .UserSessions!
             .Where(filter)
             .ToArrayAsync(cancellationToken);
 

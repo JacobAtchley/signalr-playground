@@ -98,7 +98,7 @@
             Text = $"Hello from {_userName} a filtered message {Guid.NewGuid()}"
         };
 
-        await _broadcastService.BroadcastAsync("broadcastMessage", payload, x => !x.UserName.Contains("Homer"), default);
+        await _broadcastService.BroadcastAsync("broadcastMessage", payload, x => !x.UserName!.Contains("Homer"), default);
     }
 
 }

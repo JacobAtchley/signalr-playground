@@ -43,7 +43,7 @@ if (useServerlessAzureSignalR)
 {
     builder.Services.AddSingleton<ServerlessSignalRService>()
         .AddHostedService(sp => sp.GetService<ServerlessSignalRService>())
-        .AddSingleton<IHubContextStore>(sp => sp.GetService<ServerlessSignalRService>());
+        .AddSingleton<IHubContextStore>(sp => sp.GetService<ServerlessSignalRService>()!);
 
     builder.Services.AddTransient<IBroadcastService, ServerLessHubContextBroadcastService>();
     builder.Services.AddHostedService<ServerlessSignalRService>();
@@ -96,7 +96,7 @@ if (useServerlessAzureSignalR)
 {
     app.MapPost("/chat/negotiate", async (string userName, ServerlessSignalRService service, CancellationToken cancellationToken) =>
     {
-        var negotiateResponse = await service.ChatHubContext.NegotiateAsync(new NegotiationOptions { UserId = userName }, cancellationToken);
+        var negotiateResponse = await service.ChatHubContext!.NegotiateAsync(new NegotiationOptions { UserId = userName }, cancellationToken);
 
         return new Dictionary<string, string?>
         {
