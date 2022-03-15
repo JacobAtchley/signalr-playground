@@ -1,9 +1,9 @@
 import ws from 'k6/ws';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 import http from 'k6/http';
 
 export const options = {
-    vus: 100,
+    vus: 1000,
     duration: '30s',
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
@@ -56,5 +56,6 @@ export default function () {
 
     var userName = http.get(`${baseUrl}api/username`).body;
     const group = userName.split('_')[0];
+    sleep(2);
     connectToSignalR(userName, group);
 }

@@ -1,12 +1,15 @@
 using Coravel;
 using MatBlazor;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Azure.SignalR.Management;
 using Microsoft.EntityFrameworkCore;
 using web;
 using web.Data;
 using web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var useServerlessAzureSignalR = false;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -30,17 +33,31 @@ builder.Services.AddMatToaster(config =>
     config.VisibleStateDuration = 3000;
 });
 
-builder.Services.AddSignalR()
-    .AddHubOptions<ChatHub>(chatHubOptions => {
-        chatHubOptions.AddFilter( new ChatHubFilter());
-    })
-    .AddAzureSignalR();
-
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();
 builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
     opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
-builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
-builder.Services.AddTransient<IBroadcastService, BroadcastService>();
+//builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
+builder.Services.AddTransient<IUserSessionStore, UserSessionStoreDictionary>();
+
+if (useServerlessAzureSignalR)
+{
+    builder.Services.AddSingleton<ServerlessSignalRService>()
+        .AddHostedService(sp => sp.GetService<ServerlessSignalRService>())
+        .AddSingleton<IHubContextStore>(sp => sp.GetService<ServerlessSignalRService>());
+
+    builder.Services.AddTransient<IBroadcastService, ServerLessHubContextBroadcastService>();
+    builder.Services.AddHostedService<ServerlessSignalRService>();
+    builder.Services.AddHostedService<ServerlessQueueListener>();
+}
+else
+{
+    builder.Services.AddSignalR()
+        .AddHubOptions<ChatHub>(chatHubOptions => { chatHubOptions.AddFilter(new ChatHubFilter()); })
+        .AddAzureSignalR();
+
+    builder.Services.AddTransient<IBroadcastService, HubContextBroadcastService>();
+}
+
 builder.Services.AddScheduler();
 builder.Services.AddTransient<UserSessionWatchDog>();
 builder.Services.AddTransient<MessageBroadcaster>();
@@ -60,12 +77,34 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseEndpoints(endpoints => endpoints.MapHub<ChatHub>("/chat"));
+app.UseEndpoints(endpoints =>
+{
+    if (!useServerlessAzureSignalR)
+    {
+        endpoints.MapHub<ChatHub>("/chat");
+    }
+});
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 app.MapGet("/api/username", Users.GenerateUserName);
+
+app.MapGet("/api/connected-users", (IUserSessionStore store, CancellationToken cancellationToken) => store.GetUserSessionsAsync(cancellationToken));
+
+if (useServerlessAzureSignalR)
+{
+    app.MapPost("/chat/negotiate", async (string userName, ServerlessSignalRService service, CancellationToken cancellationToken) =>
+    {
+        var negotiateResponse = await service.ChatHubContext.NegotiateAsync(new NegotiationOptions { UserId = userName }, cancellationToken);
+
+        return new Dictionary<string, string?>
+        {
+            { "url", negotiateResponse.Url },
+            { "accessToken", negotiateResponse.AccessToken }
+        };
+    });
+}
 
 app.Services.UseScheduler(scheduler =>
 {

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.SignalR;
 using web.Data;
 using web.Services;
 
+namespace web;
+
 public class ChatHub : Hub
 {
     private readonly ILogger<ChatHub> _logger;
@@ -15,36 +17,51 @@ public class ChatHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        var group = Context.GetHttpContext()?.Request.Query["group"].ToString();
-
-        if (!string.IsNullOrWhiteSpace(group))
+        try
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, group);
-            _logger.LogInformation("User added to group. {User} {Group}", Context.UserIdentifier, group);
+            var group = Context.GetHttpContext()?.Request.Query["group"].ToString();
+
+            if (!string.IsNullOrWhiteSpace(group))
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, group);
+                _logger.LogInformation("User added to group. {User} {Group}", Context.UserIdentifier, group);
+            }
+            else
+            {
+                _logger.LogInformation("User is connected with no group specifiedS");
+            }
+
+            await _userSessionStore.AddUserSessionAsync(
+                new UserSessionRecord(Guid.NewGuid(), Context.UserIdentifier, group, Context.ConnectionId, DateTimeOffset.UtcNow), default);
+
+            _logger.LogInformation(
+                "User connected to chat hub. {UserId} {ConnectionId}",
+                Context.UserIdentifier,
+                Context.ConnectionId);
         }
-        else
+        catch (Exception e)
         {
-            _logger.LogInformation("User is connected with no group specifiedS");
+            _logger.LogError(e, "Error in connected hub callback");
         }
-
-        await _userSessionStore.AddUserSessionAsync(new UserSessionRecord(Guid.NewGuid(), Context.UserIdentifier, group, Context.ConnectionId, DateTimeOffset.UtcNow), default);
-
-        _logger.LogInformation(
-            "User connected to chat hub. {UserId} {ConnectionId}",
-            Context.UserIdentifier,
-            Context.ConnectionId);
 
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _logger.LogInformation(
-            "User disconnected from chat hub. {UserId} {ConnectionId}",
-            Context.UserIdentifier,
-            Context.ConnectionId);
+        try
+        {
+            _logger.LogInformation(
+                "User disconnected from chat hub. {UserId} {ConnectionId}",
+                Context.UserIdentifier,
+                Context.ConnectionId);
 
-        await _userSessionStore.RemoveUserSessionAsync(Context.ConnectionId, default);
+            await _userSessionStore.RemoveUserSessionAsync(Context.ConnectionId, default);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in disconnected hub callback");
+        }
 
         await base.OnDisconnectedAsync(exception);
     }

@@ -32,7 +32,10 @@
                          </li>
                          <br>
                          <li role="separator" class=" mdc-list-divider" style=""></li>`;
+                         
         events.insertAdjacentHTML('beforeend', message);
+
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
     function initSignalR(){
