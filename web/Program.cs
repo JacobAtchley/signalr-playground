@@ -31,7 +31,9 @@ builder.Services.AddMatToaster(config =>
 });
 
 builder.Services.AddSignalR()
-    .AddHubOptions<ChatHub>(chatHubOptions => chatHubOptions.AddFilter( new ChatHubFilter()))
+    .AddHubOptions<ChatHub>(chatHubOptions => {
+        chatHubOptions.AddFilter( new ChatHubFilter());
+    })
     .AddAzureSignalR();
 
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();

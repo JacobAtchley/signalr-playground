@@ -44,7 +44,13 @@
                     group,
                     userName,
                 });
-                const connection = new signalR.HubConnectionBuilder().withUrl(`/chat?userName=${userName}&group=${group}`).build();
+
+                const connectionBuilder = new signalR
+                    .HubConnectionBuilder()
+                    .withUrl(`/chat?userName=${userName}&group=${group}`)
+                    .withAutomaticReconnect([1000, 5000, 30000, 60000, null]); //wait 1s, then 5s, then 30s, then 60s, then give up 
+
+                const connection = connectionBuilder.build();
 
                 connection.on('broadcastMessage', function (payload){
                     logEvent(payload.text, payload.date);

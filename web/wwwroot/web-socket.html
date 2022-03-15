@@ -21,6 +21,8 @@
                                     <li role="separator" class=" mdc-list-divider" style=""></li>`;
 
                 events.insertAdjacentHTML('beforeend', message);
+
+                window.scrollTo(0, document.body.scrollHeight);
             }
 
             function connectToSignalR(userName, group){
@@ -45,14 +47,24 @@
             }
 
             function openWebSocket(url, connectionId, accessToken){
+                let heartbeat;
                 let webSocketUrl = url.replace('https://', 'wss://');
 
                 webSocketUrl = `${webSocketUrl}&id=${connectionId}&access_token=${accessToken}`;
                 const socket = new WebSocket(webSocketUrl);
 
+
                 socket.addEventListener('open', () => {
                     socket.send(`{"protocol":"json","version":1}${endChar}`);
-                    socket.send(`{"type":6}${endChar}`);
+                    heartbeat = window.setInterval(function() {
+                        socket.send(`{"type":6}${endChar}`);
+                    }, 1000);
+                });
+
+                socket.addEventListener('close', () => {
+                    if(heartbeat){
+                        window.clearInterval(heartbeat);
+                    }
                 });
 
                 socket.addEventListener('message', event => {
