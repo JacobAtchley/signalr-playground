@@ -23,8 +23,8 @@ public class ChatHub : Hub
 
             if (!string.IsNullOrWhiteSpace(group))
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, group);
-                _logger.LogInformation("User added to group. {User} {Group}", Context.UserIdentifier, group);
+                // await Groups.AddToGroupAsync(Context.ConnectionId, group);
+                // _logger.LogInformation("User added to group. {User} {Group}", Context.UserIdentifier, group);
             }
             else
             {

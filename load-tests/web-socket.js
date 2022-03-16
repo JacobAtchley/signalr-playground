@@ -3,7 +3,7 @@ import { check, sleep } from 'k6';
 import http from 'k6/http';
 
 export const options = {
-    vus: 1000,
+    vus: 100,
     duration: '30s',
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
@@ -53,6 +53,9 @@ export default function () {
 
         check(res, { 'status is 101': (r) => r && r.status === 101 });
     }
+
+    http.get(`${baseUrl}api/entity-pump`);
+    sleep(1);
 
     var userName = http.get(`${baseUrl}api/username`).body;
     const group = userName.split('_')[0];
