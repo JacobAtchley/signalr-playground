@@ -5,6 +5,7 @@
         <link href="web.styles.css" rel="stylesheet">
         <script>
             const endChar = String.fromCharCode(30);
+            let personEventCounter = 0;
 
             function logEvent(primary, secondary){
                 const events = document.getElementById('messageEvents');
@@ -72,19 +73,34 @@
 
                 socket.addEventListener('message', event => {
                     if(event.isTrusted && event.data && typeof(event.data) === 'string'){
-                        const data = JSON.parse(event.data.replace(endChar, ''));
-                        if(data.type && data.type === 1 && data.target && data.target){
-                            const payload = (data.arguments || [])[0];
 
-                            switch(data.target){
-                                case 'broadcastMessage':
-                                    logEvent(payload.text, payload.date);
-                                    break;
-                                case 'personEvent':
-                                    logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
-                                    break;
+                        event.data.split(endChar).forEach(socketData => {
+                            if(!socketData){
+                                return;
                             }
-                        }
+                            let data = null;
+                            try{
+                                data = JSON.parse(socketData);
+                            }
+                            catch(e){
+                                console.error('Error parsing json', socketData, e);
+                            }
+
+                            if(data && data.type && data.type === 1 && data.target && data.target){
+                                const payload = (data.arguments || [])[0];
+
+                                switch(data.target){
+                                    case 'broadcastMessage':
+                                        logEvent(payload.text, payload.date);
+                                        break;
+                                    case 'personEvent':
+                                        //logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
+                                        personEventCounter++;
+                                        document.getElementById('messageCount').innerText = personEventCounter;
+                                        break;
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -100,6 +116,9 @@
     <body>
         <p>
             Listening to Events
+        </p>
+        <p>
+            <h6 class="mat mat-h6" id="messageCount">0</h6>
         </p>
         <div style="height: 600px; overflow: auto; display: flex; flex-direction: column-reverse">
             <ul class="mdc-list" style="flex: 1 1 0" aria-orientation="vertical" id="messageEvents">

@@ -59,8 +59,12 @@
                     logEvent(payload.text, payload.date);
                 });
 
+                let personEventCounter = 0;
+
                 connection.on('personEvent', payload => {
-                    logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
+                    personEventCounter++;
+                    //logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
+                    document.getElementById('messageCount').innerText = personEventCounter;
                 });
 
                 connection.start();
