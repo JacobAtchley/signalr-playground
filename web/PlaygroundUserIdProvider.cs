@@ -6,6 +6,6 @@ public class PlaygroundUserIdProvider : IUserIdProvider
 {
     public string? GetUserId(HubConnectionContext connection)
     {
-        return (connection.GetHttpContext()?.Request.Query.TryGetValue("userName", out var userName) ?? false) ? userName.ToString() : null;
+        return connection.GetHttpContext()?.Request.Query.TryGetValue("userName", out var userName) ?? false ? userName.ToString() : null;
     }
 }

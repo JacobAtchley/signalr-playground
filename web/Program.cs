@@ -60,7 +60,10 @@ else
 
 builder.Services.AddScheduler();
 builder.Services.AddTransient<UserSessionWatchDog>();
-builder.Services.AddTransient<MessageBroadcaster>();
+builder.Services.AddTransient<PersonEntityPump>();
+builder.Services.AddAutoCrud(builder.Configuration);
+builder.Services.AddRabbitMqMassTransit(builder.Configuration);
+//builder.Services.AddTransient<MessageBroadcaster>();
 
 var app = builder.Build();
 
@@ -92,6 +95,12 @@ app.MapGet("/api/username", Users.GenerateUserName);
 
 app.MapGet("/api/connected-users", (IUserSessionStore store, CancellationToken cancellationToken) => store.GetUserSessionsAsync(cancellationToken));
 
+app.MapGet("/api/entity-pump",async (PersonEntityPump pump) =>
+{
+    await pump.Invoke();
+    return "Pumped!";
+});
+
 if (useServerlessAzureSignalR)
 {
     app.MapPost("/chat/negotiate", async (string userName, ServerlessSignalRService service, CancellationToken cancellationToken) =>
@@ -109,7 +118,8 @@ if (useServerlessAzureSignalR)
 app.Services.UseScheduler(scheduler =>
 {
     scheduler.Schedule<UserSessionWatchDog>().EveryThirtySeconds();
-    scheduler.Schedule<MessageBroadcaster>().EverySecond();
+    //scheduler.Schedule<MessageBroadcaster>().EverySecond();
+    //scheduler.Schedule<PersonEntityPump>().EveryFiveSeconds();
 });
 
 await app.RunAsync();

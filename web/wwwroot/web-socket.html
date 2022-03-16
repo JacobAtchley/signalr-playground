@@ -1,5 +1,8 @@
 <html>
     <head>
+        <link href="_content/MatBlazor/dist/matBlazor.css" rel="stylesheet">
+        <link href="css/site.css" rel="stylesheet">
+        <link href="web.styles.css" rel="stylesheet">
         <script>
             const endChar = String.fromCharCode(30);
 
@@ -68,12 +71,19 @@
                 });
 
                 socket.addEventListener('message', event => {
-                    if(event.isTrusted){
-                        var data = JSON.parse(event.data.replace(endChar, ''));
-                        if(data.type && data.type == 1 && data.target && data.target == 'broadcastMessage'){
-                            var messageData = (data.arguments || [])[0];
-                            console.log('received broad cast message', messageData);
-                            logEvent(messageData.text, messageData.date);
+                    if(event.isTrusted && event.data && typeof(event.data) === 'string'){
+                        const data = JSON.parse(event.data.replace(endChar, ''));
+                        if(data.type && data.type === 1 && data.target && data.target){
+                            const payload = (data.arguments || [])[0];
+
+                            switch(data.target){
+                                case 'broadcastMessage':
+                                    logEvent(payload.text, payload.date);
+                                    break;
+                                case 'personEvent':
+                                    logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
+                                    break;
+                            }
                         }
                     }
                 });
@@ -89,10 +99,12 @@
     </head>
     <body>
         <p>
-            Werking
+            Listening to Events
         </p>
-        <ul id="messageEvents">
+        <div style="height: 600px; overflow: auto; display: flex; flex-direction: column-reverse">
+            <ul class="mdc-list" style="flex: 1 1 0" aria-orientation="vertical" id="messageEvents">
 
-        </ul>
+            </ul>
+        </div>
     </body>
 </html>

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace web.Data;
+namespace web.Models;
     public class QueueMessage
     {
         [JsonPropertyName("id")]

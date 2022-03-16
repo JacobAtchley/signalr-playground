@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using web.Data;
+using web.Models;
 using web.Services;
 
 namespace web;

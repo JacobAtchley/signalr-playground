@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using web.Data;
+using web.Models;
 
 namespace web.Services;
 

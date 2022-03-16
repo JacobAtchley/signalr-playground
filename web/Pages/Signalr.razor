@@ -1,6 +1,7 @@
 @page "/signalr"
 @using web.Data
 @using System.Text.Json
+@using web.Models
 @using web.Services
 @inject IBroadcastService _broadcastService
 @inject IJSRuntime _jsRuntime;
@@ -38,9 +39,11 @@
     </div>
 </div>
 
-<ul class="mdc-list" style="" aria-orientation="vertical" id="messageEvents">
+<div style="height: 400px; overflow: auto; display: flex; flex-direction: column-reverse">
+    <ul class="mdc-list" style="flex: 1 1 0" aria-orientation="vertical" id="messageEvents">
 
-</ul>
+    </ul>
+</div>
 
 @code {
 

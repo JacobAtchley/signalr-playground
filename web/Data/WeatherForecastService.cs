@@ -1,3 +1,5 @@
+using web.Models;
+
 namespace web.Data;
 
 public class WeatherForecastService

@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace web.Data;
+namespace web.Models;
 public class Message
 {
     [JsonProperty("text")]

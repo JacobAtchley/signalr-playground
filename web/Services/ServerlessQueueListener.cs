@@ -1,5 +1,5 @@
 using Azure.Messaging.ServiceBus;
-using web.Data;
+using web.Models;
 
 namespace web.Services;
 

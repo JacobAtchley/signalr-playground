@@ -55,8 +55,12 @@
 
                 const connection = connectionBuilder.build();
 
-                connection.on('broadcastMessage', function (payload){
+                connection.on('broadcastMessage', payload => {
                     logEvent(payload.text, payload.date);
+                });
+
+                connection.on('personEvent', payload => {
+                    logEvent(`Person Event`, `${payload.after.firstName} ${payload.after.lastName} - ${payload.trigger}`);
                 });
 
                 connection.start();
