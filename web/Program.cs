@@ -119,7 +119,7 @@ app.MapPost("/api/connections/{connectionId}/person-events", async (
     };
 
     await store.RegisterAsync(personSub, cancellationToken);
-    return Results.Ok();
+    return new { Text = "Subscribed" };
 });
 
 app.MapGet("/api/entity-pump",async (PersonEntityPump pump) =>
