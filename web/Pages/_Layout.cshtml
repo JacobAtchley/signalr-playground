@@ -53,7 +53,7 @@
         body: JSON.stringify(data)
       });
 
-      return response.json();
+        return Number(response.headers.get("content-length")) > 0 ? response.json() : response.text();
     }
 
     function initSignalR(){
@@ -91,7 +91,11 @@
 
                    postData(`/api/connections/${connectionId}/person-events`, {
                        trigger: 'Added'
-                   }).then( () => console.log('subscribed to person events'));;
+                   }).then( () => console.log('subscribed to person added events'));
+
+                   postData(`/api/connections/${connectionId}/person-events`, {
+                       trigger: 'Updated'
+                   }).then( () => console.log('subscribed to person updated events'));
                 });
         });
     }
