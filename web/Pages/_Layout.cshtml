@@ -67,7 +67,9 @@
                     document.getElementById('messageCount').innerText = personEventCounter;
                 });
 
-                connection.start();
+                connection.start().then(() => {
+                    console.log('connected', connection.connectionId)
+                });
         });
     }
 

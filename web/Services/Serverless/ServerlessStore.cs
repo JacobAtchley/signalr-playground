@@ -1,6 +1,6 @@
 using Microsoft.Azure.SignalR.Management;
 
-namespace web.Services;
+namespace web.Services.Serverless;
     public interface IHubContextStore
     {
         public ServiceHubContext? ChatHubContext { get; }

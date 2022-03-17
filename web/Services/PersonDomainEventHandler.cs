@@ -2,6 +2,7 @@ using Firebend.AutoCrud.Core.Implementations;
 using Firebend.AutoCrud.Core.Interfaces.Services.DomainEvents;
 using Firebend.AutoCrud.Core.Models.DomainEvents;
 using web.Models;
+using web.Services.Interfaces;
 
 namespace web.Services;
 

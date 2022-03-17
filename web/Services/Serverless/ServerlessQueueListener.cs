@@ -1,7 +1,8 @@
 using Azure.Messaging.ServiceBus;
 using web.Models;
+using web.Services.Interfaces;
 
-namespace web.Services;
+namespace web.Services.Serverless;
 
 public class ServerlessQueueListener : BackgroundService
 {

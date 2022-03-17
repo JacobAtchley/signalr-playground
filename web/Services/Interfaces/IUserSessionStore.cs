@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using web.Models;
 
-namespace web.Services;
+namespace web.Services.Interfaces;
 
 public interface IUserSessionStore
 {

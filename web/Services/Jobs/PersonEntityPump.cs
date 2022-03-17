@@ -4,7 +4,7 @@ using Firebend.AutoCrud.Core.Interfaces.Services.Entities;
 using Microsoft.AspNetCore.JsonPatch;
 using Person = web.Models.Person;
 
-namespace web.Services;
+namespace web.Services.Jobs;
 
 public class PersonEntityPump : IInvocable
 {

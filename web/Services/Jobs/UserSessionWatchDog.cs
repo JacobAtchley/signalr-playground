@@ -1,6 +1,7 @@
 using Coravel.Invocable;
+using web.Services.Interfaces;
 
-namespace web.Services;
+namespace web.Services.Jobs;
 
 public class UserSessionWatchDog : IInvocable
 {

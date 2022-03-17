@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using web.Models;
-using web.Services;
+using web.Services.Interfaces;
 
 namespace web;
 

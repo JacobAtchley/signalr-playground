@@ -1,8 +1,9 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using web.Models;
+using web.Services.Interfaces;
 
-namespace web.Services;
+namespace web.Services.Db;
 
 internal static class UserSessionStoreDictionaryCache
 {

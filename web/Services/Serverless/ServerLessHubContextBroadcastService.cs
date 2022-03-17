@@ -1,7 +1,8 @@
 using System.Linq.Expressions;
 using web.Models;
+using web.Services.Interfaces;
 
-namespace web.Services;
+namespace web.Services.Serverless;
 
 public class ServerLessHubContextBroadcastService : IBroadcastService
 {

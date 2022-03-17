@@ -1,18 +1,9 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using web.Models;
+using web.Services.Interfaces;
 
-namespace web.Services;
-
-public class UserSessionStoreDbContext : DbContext
-{
-    public DbSet<UserSessionRecord>? UserSessions { get; set; }
-
-    public UserSessionStoreDbContext(DbContextOptions<UserSessionStoreDbContext> options) : base(options)
-    {
-
-    }
-}
+namespace web.Services.Db;
 
 public class UserSessionStoreEf : IUserSessionStore
 {
