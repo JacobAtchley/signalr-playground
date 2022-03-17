@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Firebend.AutoCrud.DomainEvents.MassTransit.Extensions;
 using MassTransit;
 
-namespace web;
+namespace web.Extensions;
 
 public static class MassTransit
 {

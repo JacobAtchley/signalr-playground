@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace web;
+namespace web.Services;
 
-public class ChatHubFilter: IHubFilter
+public class ChatHubFilter : IHubFilter
 {
     public async ValueTask<object?> InvokeMethodAsync(
-        HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object?>> next)
+        HubInvocationContext invocationContext,
+        Func<HubInvocationContext, ValueTask<object?>> next)
     {
         try
         {
@@ -26,7 +27,9 @@ public class ChatHubFilter: IHubFilter
 
     // Optional method
     public Task OnDisconnectedAsync(
-        HubLifetimeContext context, Exception? exception, Func<HubLifetimeContext, Exception, Task> next)
+        HubLifetimeContext context,
+        Exception? exception,
+        Func<HubLifetimeContext, Exception, Task> next)
     {
         return next(context, exception!);
     }

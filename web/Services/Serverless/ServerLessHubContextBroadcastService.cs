@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using web.Models;
+using web.Models.Entities;
 using web.Services.Interfaces;
 
 namespace web.Services.Serverless;
@@ -22,12 +22,12 @@ public class ServerLessHubContextBroadcastService : IBroadcastService
         await SendMessageToClientsAsync(users, eventName, payload, cancellationToken);
     }
 
-    private async Task SendMessageToClientsAsync<TPayload>( IEnumerable<UserSessionRecord> users, string eventName, TPayload? payload, CancellationToken cancellationToken)
+    private async Task SendMessageToClientsAsync<TPayload>( IEnumerable<UserSession> users, string eventName, TPayload? payload, CancellationToken cancellationToken)
     {
         if (payload is not null)
         {
             await _hubContextStore.ChatHubContext?.Clients
-                .Clients(users.Select(x => x.ConnectionId).ToList())
+                .Clients(users.Select(x => x.ConnectionId).ToList()!)
                 .SendCoreAsync(eventName, new object[] { payload }, cancellationToken)!;
         }
     }
@@ -39,7 +39,7 @@ public class ServerLessHubContextBroadcastService : IBroadcastService
         await SendMessageToClientsAsync(users, eventName, payload, cancellationToken );
     }
 
-    public async Task BroadcastAsync<TPayload>(string eventName, TPayload? payload, Expression<Func<UserSessionRecord, bool>> filter, CancellationToken cancellationToken)
+    public async Task BroadcastAsync<TPayload>(string eventName, TPayload? payload, Expression<Func<UserSession, bool>> filter, CancellationToken cancellationToken)
     {
         var users = await _userSessionStore.GetUserSessionsByFilterAsync(filter, cancellationToken);
 

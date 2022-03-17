@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.SignalR;
-using web.Models;
+using web.Models.Entities;
 using web.Services.Interfaces;
 
-namespace web.Services;
+namespace web.Services.Hubs;
 
 public class HubContextBroadcastService : IBroadcastService
 {
@@ -23,7 +23,7 @@ public class HubContextBroadcastService : IBroadcastService
         await SendMessageToClientsAsync(users, eventName, payload, cancellationToken);
     }
 
-    private async Task SendMessageToClientsAsync<TPayload>( IEnumerable<UserSessionRecord> users, string eventName, TPayload? payload, CancellationToken cancellationToken)
+    private async Task SendMessageToClientsAsync<TPayload>( IEnumerable<UserSession> users, string eventName, TPayload? payload, CancellationToken cancellationToken)
     {
         if (payload is not null)
         {
@@ -40,7 +40,7 @@ public class HubContextBroadcastService : IBroadcastService
         await SendMessageToClientsAsync(users, eventName, payload, cancellationToken );
     }
 
-    public async Task BroadcastAsync<TPayload>(string eventName, TPayload? payload, Expression<Func<UserSessionRecord, bool>> filter, CancellationToken cancellationToken)
+    public async Task BroadcastAsync<TPayload>(string eventName, TPayload? payload, Expression<Func<UserSession, bool>> filter, CancellationToken cancellationToken)
     {
         var users = await _userSessionStore.GetUserSessionsByFilterAsync(filter, cancellationToken);
 

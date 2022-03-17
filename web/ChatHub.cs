@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using web.Models;
+using web.Models.Entities;
 using web.Services.Interfaces;
 
 namespace web;
@@ -31,8 +31,15 @@ public class ChatHub : Hub
                 _logger.LogInformation("User is connected with no group specifiedS");
             }
 
-            await _userSessionStore.AddUserSessionAsync(
-                new UserSessionRecord(Guid.NewGuid(), Context.UserIdentifier, group, Context.ConnectionId, DateTimeOffset.UtcNow), default);
+            var session = new UserSession
+            {
+                ConnectionId = Context.ConnectionId,
+                Group = group,
+                UserName = Context.UserIdentifier,
+                LastConnectedDate = DateTimeOffset.UtcNow
+            };
+
+            await _userSessionStore.AddUserSessionAsync(session, default);
 
             _logger.LogInformation(
                 "User connected to chat hub. {UserId} {ConnectionId}",

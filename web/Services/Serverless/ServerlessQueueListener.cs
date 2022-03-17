@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using web.Models;
+using web.Models.Entities;
 using web.Services.Interfaces;
 
 namespace web.Services.Serverless;
@@ -75,11 +76,13 @@ public class ServerlessQueueListener : BackgroundService
 
             if (message.IsConnectedEvent)
             {
-                var record = new UserSessionRecord(Guid.NewGuid(),
-                    message.Data?.UserId,
-                    string.Empty,
-                    connectionId,
-                    DateTimeOffset.UtcNow);
+                var record = new UserSession
+                {
+                    UserName = message.Data?.UserId,
+                    Group = string.Empty,
+                    ConnectionId = connectionId,
+                    LastConnectedDate = DateTimeOffset.UtcNow
+                };
 
                 await sessionStore.AddUserSessionAsync(record, arg.CancellationToken);
                 await arg.CompleteMessageAsync(arg.Message, arg.CancellationToken);

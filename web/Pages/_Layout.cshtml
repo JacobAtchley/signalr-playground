@@ -38,6 +38,24 @@
         window.scrollTo(0, document.body.scrollHeight);
     }
 
+    async function postData(url = '', data = {}) {
+
+        const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data)
+      });
+
+      return response.json();
+    }
+
     function initSignalR(){
         fetch('/api/username')
             .then(res => res.text())
@@ -68,7 +86,12 @@
                 });
 
                 connection.start().then(() => {
-                    console.log('connected', connection.connectionId)
+                    const connectionId = connection.connectionId;
+                    console.log('connected', connectionId)
+
+                   postData(`/api/connections/${connectionId}/person-events`, {
+                       trigger: 'Added'
+                   }).then( () => console.log('subscribed to person events'));;
                 });
         });
     }

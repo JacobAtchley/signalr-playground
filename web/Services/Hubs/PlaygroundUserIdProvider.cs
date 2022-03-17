@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace web;
+namespace web.Services.Hubs;
 
 public class PlaygroundUserIdProvider : IUserIdProvider
 {

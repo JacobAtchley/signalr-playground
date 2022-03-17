@@ -4,9 +4,10 @@ using Firebend.AutoCrud.CustomFields.Mongo;
 using Firebend.AutoCrud.DomainEvents.MassTransit.Extensions;
 using Firebend.AutoCrud.Mongo;
 using web.Models;
+using web.Models.Entities;
 using web.Services;
 
-namespace web;
+namespace web.Extensions;
 
 public static class AutoCrud
 {
@@ -23,9 +24,7 @@ public static class AutoCrud
                     .AddDomainEvents(de =>
                         de.WithMongoChangeTracking()
                             .WithMassTransit()
-                            .WithDomainEventEntityAddedSubscriber<PersonDomainEventHandler>()
-                            .WithDomainEventEntityUpdatedSubscriber<PersonDomainEventHandler>()
-                            .WithDomainEventEntityDeletedSubscriber<PersonDomainEventHandler>()));
+                            .AddWebSocketHandlers<Guid, Person, PersonWebSockDomainEventHandler, PersonEventSubscription>()));
         });
     }
 }

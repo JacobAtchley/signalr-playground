@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using web.Services;
 using web.Services.Db;
 
 #nullable disable
@@ -23,30 +22,60 @@ namespace web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("web.Data.UserSessionRecord", b =>
+            modelBuilder.Entity("web.Models.Entities.PersonEventSubscription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConnectionId")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Filter")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Trigger")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConnectionId");
+
+                    b.ToTable("PeopleEventSubscriptions");
+                });
+
+            modelBuilder.Entity("web.Models.Entities.UserSession", b =>
+                {
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Group")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("LastConnectedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ConnectionId");
 
                     b.ToTable("UserSessions");
+                });
+
+            modelBuilder.Entity("web.Models.Entities.PersonEventSubscription", b =>
+                {
+                    b.HasOne("web.Models.Entities.UserSession", "Session")
+                        .WithMany("PersonEventSubscriptions")
+                        .HasForeignKey("ConnectionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("web.Models.Entities.UserSession", b =>
+                {
+                    b.Navigation("PersonEventSubscriptions");
                 });
 #pragma warning restore 612, 618
         }
