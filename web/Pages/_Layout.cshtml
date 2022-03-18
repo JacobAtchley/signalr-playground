@@ -94,7 +94,8 @@
                    }).then( () => console.log('subscribed to person added events'));
 
                    postData(`/api/connections/${connectionId}/person-events`, {
-                       trigger: 'Updated'
+                       trigger: 'Updated',
+                       filter: '/firstName'
                    }).then( () => console.log('subscribed to person updated events'));
                 });
         });

@@ -9,6 +9,4 @@ public class UserSession
     public string? UserName { get; set; }
     public string? Group { get; set; }
     public DateTimeOffset LastConnectedDate { get; set; }
-
-    public List<PersonEventSubscription> PersonEventSubscriptions { get; set; }
 }

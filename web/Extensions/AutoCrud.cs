@@ -24,7 +24,7 @@ public static class AutoCrud
                     .AddDomainEvents(de =>
                         de.WithMongoChangeTracking()
                             .WithMassTransit()
-                            .AddWebSocketHandlers<Guid, Person, PersonWebSockDomainEventHandler, PersonEventSubscription>()));
+                            .AddWebSocketHandlers<Guid, Person, PersonWebSockDomainEventHandler, PersonEventSubscription, PersonEventBroadcastFilterService>()));
         });
     }
 }

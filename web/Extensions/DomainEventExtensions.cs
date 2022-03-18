@@ -11,7 +11,7 @@ namespace web.Extensions;
 
 public static class DomainEventExtensions
 {
-    public static DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> AddWebSocketHandlers<TKey, TEntity, THandler, TSubscription>(this DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> domainEventsConfigurator)
+    public static DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> AddWebSocketHandlers<TKey, TEntity, THandler, TSubscription, TFilter>(this DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> domainEventsConfigurator)
         where TKey : struct
         where TEntity : class, IEntity<TKey>
         where THandler : EntityWebSockDomainEventHandler<TEntity, TSubscription>
@@ -24,7 +24,7 @@ public static class DomainEventExtensions
             .WithRegistration<IEntityEventBroadcastService<TEntity>, EntityEventBroadcastService<TEntity>>();
 
         domainEventsConfigurator.Builder
-            .WithRegistration<IEntityEventBroadcastFilterService<TEntity, TSubscription>, EntityEventBroadcastFilterService<TEntity, TSubscription>>();
+            .WithRegistration<IEntityEventBroadcastFilterService<TEntity, TSubscription>, TFilter>();
 
         return domainEventsConfigurator.WithDomainEventEntityAddedSubscriber<THandler>()
             .WithDomainEventEntityUpdatedSubscriber<THandler>()

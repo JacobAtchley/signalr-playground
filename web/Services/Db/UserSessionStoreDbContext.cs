@@ -17,12 +17,6 @@ public class UserSessionStoreDbContext : DbContext
         modelBuilder.Entity<UserSession>()
             .HasKey(x => x.ConnectionId);
 
-        modelBuilder.Entity<UserSession>()
-            .HasMany(x => x.PersonEventSubscriptions)
-            .WithOne(x => x.Session)
-            .HasForeignKey(x => x.ConnectionId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         base.OnModelCreating(modelBuilder);
     }
 }

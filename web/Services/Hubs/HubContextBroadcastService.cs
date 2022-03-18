@@ -28,7 +28,7 @@ public class HubContextBroadcastService : IBroadcastService
         if (payload is not null)
         {
             await _hubContext.Clients
-                .Clients(users.Select(x => x.ConnectionId))
+                .Clients(users.Select(x => x.ConnectionId)!)
                 .SendCoreAsync(eventName, new object[] { payload }, cancellationToken);
         }
     }

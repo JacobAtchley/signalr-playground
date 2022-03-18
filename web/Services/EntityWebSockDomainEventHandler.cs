@@ -32,7 +32,7 @@ public abstract class EntityWebSockDomainEventHandler<TEntity, TSubscription> :
             Before = null,
             Date = domainEvent.Time,
             Id = domainEvent.MessageId,
-            Trigger = "Added"
+            Trigger = EntityTrigger.Added
         };
 
         return SendMessagesAsync(@event, cancellationToken);
@@ -46,7 +46,7 @@ public abstract class EntityWebSockDomainEventHandler<TEntity, TSubscription> :
             Before = domainEvent.Previous,
             Date = domainEvent.Time,
             Id = domainEvent.MessageId,
-            Trigger = "Updated"
+            Trigger = EntityTrigger.Updated
         };
 
         return SendMessagesAsync(@event, cancellationToken);
@@ -60,7 +60,7 @@ public abstract class EntityWebSockDomainEventHandler<TEntity, TSubscription> :
             Before = null,
             Date = domainEvent.Time,
             Id = domainEvent.MessageId,
-            Trigger = "Deleted"
+            Trigger = EntityTrigger.Deleted
         };
 
         return SendMessagesAsync(@event, cancellationToken);

@@ -9,7 +9,6 @@ public class UserSessionStoreEf : IUserSessionStore
 {
     private readonly IDbContextFactory<UserSessionStoreDbContext> _dbContextFactory;
 
-
     public UserSessionStoreEf(IDbContextFactory<UserSessionStoreDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;

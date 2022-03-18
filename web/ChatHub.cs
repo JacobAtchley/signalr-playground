@@ -8,11 +8,13 @@ public class ChatHub : Hub
 {
     private readonly ILogger<ChatHub> _logger;
     private readonly IUserSessionStore _userSessionStore;
+    private readonly IEntityEventSessionStore<PersonEventSubscription> _personStore;
 
-    public ChatHub(ILogger<ChatHub> logger, IUserSessionStore userSessionStore)
+    public ChatHub(ILogger<ChatHub> logger, IUserSessionStore userSessionStore, IEntityEventSessionStore<PersonEventSubscription> personStore)
     {
         _logger = logger;
         _userSessionStore = userSessionStore;
+        _personStore = personStore;
     }
 
     public override async Task OnConnectedAsync()
@@ -63,7 +65,9 @@ public class ChatHub : Hub
                 Context.UserIdentifier,
                 Context.ConnectionId);
 
-            await _userSessionStore.RemoveUserSessionAsync(Context.ConnectionId, default);
+            var connectionId = Context.ConnectionId;
+            await _userSessionStore.RemoveUserSessionAsync(connectionId, default);
+            await _personStore.RemoveConnectionAsync(connectionId, default);
         }
         catch (Exception e)
         {

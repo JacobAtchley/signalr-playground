@@ -1,14 +1,12 @@
+using System.Text.Json.Serialization;
 using Coravel;
 using MatBlazor;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Azure.SignalR.Management;
 using Microsoft.EntityFrameworkCore;
 using web;
 using web.Data;
 using web.Extensions;
-using web.Models.Entities;
-using web.Models.ViewModels;
 using web.Services;
 using web.Services.Db;
 using web.Services.Hubs;
@@ -18,7 +16,7 @@ using web.Services.Serverless;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var useServerlessAzureSignalR = false;
+const bool useServerlessAzureSignalR = false;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -47,6 +45,7 @@ builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
     opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
 builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
 //builder.Services.AddTransient<IUserSessionStore, UserSessionStoreDictionary>();
+builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 if (useServerlessAzureSignalR)
 {
@@ -100,47 +99,8 @@ app.UseEndpoints(endpoints =>
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.MapGet("/api/username", Users.GenerateUserName);
+app.MapMyEndpoints(useServerlessAzureSignalR);
 
-app.MapGet("/api/connected-users", (IUserSessionStore store, CancellationToken cancellationToken) => store.GetUserSessionsAsync(cancellationToken));
-
-app.MapPost("/api/connections/{connectionId}/person-events", async (
-    [FromRoute]string connectionId,
-    [FromBody]EventSubscriptionViewModel sub,
-    IEntityEventSessionStore<PersonEventSubscription> store,
-    CancellationToken cancellationToken) =>
-{
-    var personSub = new PersonEventSubscription
-    {
-        Filter = sub.Filter,
-        ConnectionId = connectionId,
-        Trigger = sub.Trigger,
-        Id = Guid.NewGuid(),
-    };
-
-    await store.RegisterAsync(personSub, cancellationToken);
-    return new { Text = "Subscribed" };
-});
-
-app.MapGet("/api/entity-pump",async (PersonEntityPump pump) =>
-{
-    await pump.Invoke();
-    return "Pumped!";
-});
-
-if (useServerlessAzureSignalR)
-{
-    app.MapPost("/chat/negotiate", async (string userName, ServerlessSignalRService service, CancellationToken cancellationToken) =>
-    {
-        var negotiateResponse = await service.ChatHubContext!.NegotiateAsync(new NegotiationOptions { UserId = userName }, cancellationToken);
-
-        return new Dictionary<string, string?>
-        {
-            { "url", negotiateResponse.Url },
-            { "accessToken", negotiateResponse.AccessToken }
-        };
-    });
-}
 
 app.Services.UseScheduler(scheduler =>
 {

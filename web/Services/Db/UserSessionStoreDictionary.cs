@@ -29,13 +29,13 @@ public class UserSessionStoreDictionary : IUserSessionStore
 
     public Task AddUserSessionAsync(UserSession record, CancellationToken cancellationToken)
     {
-        UserSessionStoreDictionaryCache.Sessions.TryAdd(record.ConnectionId, record);
+        UserSessionStoreDictionaryCache.Sessions.TryAdd(record.ConnectionId!, record);
         return Task.CompletedTask;
     }
 
     public Task RemoveUserSessionAsync(string? connectionId, CancellationToken cancellationToken)
     {
-        UserSessionStoreDictionaryCache.Sessions.TryRemove(connectionId, out _);
+        UserSessionStoreDictionaryCache.Sessions.TryRemove(connectionId!, out _);
         return Task.CompletedTask;
     }
 

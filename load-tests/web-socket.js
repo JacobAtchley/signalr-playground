@@ -1,9 +1,12 @@
 import ws from 'k6/ws';
 import { check, sleep } from 'k6';
 import http from 'k6/http';
+import { Counter } from 'k6/metrics';
+
+const personCounterMetric = new Counter('person_events');
 
 export const options = {
-    vus: 25,
+    vus: 50,
     duration: '30s',
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
@@ -19,14 +22,27 @@ export default function () {
 
     function connectToSignalR(userName, group){
         const url = `${baseUrl}chat/negotiate?userName=${userName}&group=${group}&negotiateVersion=1`;
-        var payload = http.post(url).json();
+        var hub = http.post(url);
+
+        check(hub, {
+            'Can negotiate hub': r => r.status == 200
+        });
+
+        var payload = hub.json();
+
         negotiateConnection(payload.url, payload.accessToken);
     }
 
     function negotiateConnection(url, accessToken){
         let negotiateUrl = url.replace('?hub', 'negotiate?hub');
+        var azure = http.post(negotiateUrl, {}, {headers: {'Authorization': `Bearer ${accessToken}`}});
 
-        var connectionInfo = http.post(negotiateUrl, {}, {headers: {'Authorization': `Bearer ${accessToken}`}}).json();
+        check(azure, {
+            'Can negotiate azure signal r': r => r.status == 200
+        });
+
+        var connectionInfo = azure.json();
+
         openWebSocket(url, connectionInfo.connectionId, accessToken);
     }
 
@@ -83,6 +99,7 @@ export default function () {
                         switch(data.target){
                             case 'personEvent':
                                 personEventCounter++;
+                                personCounterMetric.add(1);
                                 break;
                         }
                     }
@@ -104,6 +121,6 @@ export default function () {
     }
     var userName = http.get(`${baseUrl}api/username`).body;
     const group = userName.split('_')[0];
-    sleep(2);
+    sleep(1);
     connectToSignalR(userName, group);
 }
