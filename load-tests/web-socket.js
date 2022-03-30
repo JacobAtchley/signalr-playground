@@ -6,8 +6,8 @@ import { Counter } from 'k6/metrics';
 const personCounterMetric = new Counter('person_events');
 
 export const options = {
-    vus: 50,
-    duration: '30s',
+    vus: 100,
+    duration: '120s',
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
       'http_req_duration{status:500}': ['max>=0'],
@@ -119,8 +119,20 @@ export default function () {
 
         check(res, { 'web socket status is 101': (r) => r && r.status === 101 });
     }
-    var userName = http.get(`${baseUrl}api/username`).body;
-    const group = userName.split('_')[0];
+
     sleep(1);
+
+    var userNameResponse = http.get(`${baseUrl}api/username`);
+
+    check(userNameResponse, {
+        'Can get username': r => r.status == 200
+    });
+
+    const userName = userNameResponse.body;
+
+    const group = userName.split('_')[0];
+
+    sleep(1);
+
     connectToSignalR(userName, group);
 }

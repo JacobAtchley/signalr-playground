@@ -13,7 +13,7 @@ public static class MapEndpoints
 {
     public static IEndpointRouteBuilder MapMyEndpoints(this IEndpointRouteBuilder app, bool useServerlessAzureSignalR)
     {
-        app.MapGet("/api/username", Users.GenerateUserName);
+        app.MapGet("/api/username", async () => await Task.Run<string>(() => Users.GenerateUserName()));
         app.MapGet("/api/entity-pump",async (PersonEntityPump pump) => { await pump.Invoke(); return "Pumped!"; });
 
         app.MapPost("/api/connections/{connectionId}/person-events", async (
