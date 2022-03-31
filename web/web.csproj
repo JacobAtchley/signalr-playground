@@ -15,6 +15,7 @@
     <PackageReference Include="Firebend.AutoCrud.CustomFields.Mongo" Version="4.1.0" />
     <PackageReference Include="Firebend.AutoCrud.DomainEvents.MassTransit" Version="4.1.0" />
     <PackageReference Include="Firebend.AutoCrud.Mongo" Version="4.1.0" />
+    <PackageReference Include="LitRedis.Core" Version="2.0.0" />
     <PackageReference Include="MatBlazor" Version="2.8.0" />
     <PackageReference Include="MassTransit" Version="7.3.1" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />

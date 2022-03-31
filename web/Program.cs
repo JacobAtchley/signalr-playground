@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Coravel;
+using LitRedis.Core;
 using MatBlazor;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
@@ -43,8 +44,9 @@ builder.Services.AddMatToaster(config =>
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();
 builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
     opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
-builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
+//builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
 //builder.Services.AddTransient<IUserSessionStore, UserSessionStoreDictionary>();
+builder.Services.AddTransient<IUserSessionStore, UserSessionStoreRedis>();
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 if (useServerlessAzureSignalR)
@@ -72,6 +74,8 @@ builder.Services.AddTransient<PersonEntityPump>();
 builder.Services.AddAutoCrud(builder.Configuration);
 builder.Services.AddRabbitMqMassTransit(builder.Configuration);
 //builder.Services.AddTransient<MessageBroadcaster>();
+
+builder.Services.AddLitRedis(redis => redis.WithCaching().WithLocking().WithConnectionString("localhost:6379,defaultDatabase=0"));
 
 var app = builder.Build();
 

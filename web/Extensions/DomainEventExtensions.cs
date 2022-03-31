@@ -18,7 +18,8 @@ public static class DomainEventExtensions
         where TSubscription : EntityEventSubscription
     {
         domainEventsConfigurator.Builder
-            .WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStore<TSubscription>>();
+            //.WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStore<TSubscription>>();
+            .WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStoreRedis<TSubscription>>();
 
         domainEventsConfigurator.Builder
             .WithRegistration<IEntityEventBroadcastService<TEntity>, EntityEventBroadcastService<TEntity>>();
