@@ -11,7 +11,7 @@ namespace web.Extensions;
 
 public static class AutoCrud
 {
-    public static IServiceCollection AddAutoCrud(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddAutoCrud(this IServiceCollection serviceCollection, IConfiguration configuration, bool useRedisSessionStore)
     {
         return serviceCollection.UsingMongoCrud(configuration.GetConnectionString("Mongo"), true, mongo =>
         {
@@ -24,7 +24,7 @@ public static class AutoCrud
                     .AddDomainEvents(de =>
                         de.WithMongoChangeTracking()
                             .WithMassTransit()
-                            .AddWebSocketHandlers<Guid, Person, PersonWebSockDomainEventHandler, PersonEventSubscription, PersonEventBroadcastFilterService>()));
+                            .AddWebSocketHandlers<Guid, Person, PersonWebSockDomainEventHandler, PersonEventSubscription, PersonEventBroadcastFilterService>(useRedisSessionStore)));
         });
     }
 }

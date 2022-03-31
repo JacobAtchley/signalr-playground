@@ -18,6 +18,8 @@ using web.Services.Serverless;
 var builder = WebApplication.CreateBuilder(args);
 
 const bool useServerlessAzureSignalR = false;
+const bool useRedisSessionStore = true;
+const bool useDictionarySessionStore = false;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -44,9 +46,20 @@ builder.Services.AddMatToaster(config =>
 builder.Services.AddSingleton<IUserIdProvider, PlaygroundUserIdProvider>();
 builder.Services.AddDbContextFactory<UserSessionStoreDbContext>(
     opts => opts.UseSqlServer(builder.Configuration.GetConnectionString("UserSessionStoreEf")));
-//builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
-//builder.Services.AddTransient<IUserSessionStore, UserSessionStoreDictionary>();
-builder.Services.AddTransient<IUserSessionStore, UserSessionStoreRedis>();
+
+if (useRedisSessionStore)
+{
+    builder.Services.AddTransient<IUserSessionStore, UserSessionStoreRedis>();
+}
+else if(useDictionarySessionStore)
+{
+    builder.Services.AddTransient<IUserSessionStore, UserSessionStoreDictionary>();
+}
+else
+{
+    builder.Services.AddTransient<IUserSessionStore, UserSessionStoreEf>();
+}
+
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 if (useServerlessAzureSignalR)
@@ -71,11 +84,11 @@ else
 builder.Services.AddScheduler();
 builder.Services.AddTransient<UserSessionWatchDog>();
 builder.Services.AddTransient<PersonEntityPump>();
-builder.Services.AddAutoCrud(builder.Configuration);
+builder.Services.AddAutoCrud(builder.Configuration, useRedisSessionStore);
 builder.Services.AddRabbitMqMassTransit(builder.Configuration);
 //builder.Services.AddTransient<MessageBroadcaster>();
 
-builder.Services.AddLitRedis(redis => redis.WithCaching().WithLocking().WithConnectionString("localhost:6379,defaultDatabase=0"));
+builder.Services.AddLitRedis(redis => redis.WithCaching().WithLocking().WithConnectionString(builder.Configuration.GetConnectionString("Redis")));
 
 var app = builder.Build();
 

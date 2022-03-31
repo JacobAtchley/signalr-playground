@@ -11,15 +11,24 @@ namespace web.Extensions;
 
 public static class DomainEventExtensions
 {
-    public static DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> AddWebSocketHandlers<TKey, TEntity, THandler, TSubscription, TFilter>(this DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> domainEventsConfigurator)
+    public static DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> AddWebSocketHandlers<TKey, TEntity, THandler, TSubscription, TFilter>(
+        this DomainEventsConfigurator<EntityCrudBuilder<TKey, TEntity>, TKey, TEntity> domainEventsConfigurator,
+        bool useRedis)
         where TKey : struct
         where TEntity : class, IEntity<TKey>
         where THandler : EntityWebSockDomainEventHandler<TEntity, TSubscription>
         where TSubscription : EntityEventSubscription
     {
-        domainEventsConfigurator.Builder
-            //.WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStore<TSubscription>>();
-            .WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStoreRedis<TSubscription>>();
+        if (useRedis)
+        {
+            domainEventsConfigurator.Builder
+                .WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStoreRedis<TSubscription>>();
+        }
+        else
+        {
+            domainEventsConfigurator.Builder
+                .WithRegistration<IEntityEventSessionStore<TSubscription>, EntityEventSessionStore<TSubscription>>();
+        }
 
         domainEventsConfigurator.Builder
             .WithRegistration<IEntityEventBroadcastService<TEntity>, EntityEventBroadcastService<TEntity>>();
