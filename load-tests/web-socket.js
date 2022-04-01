@@ -4,10 +4,15 @@ import http from 'k6/http';
 import { Counter } from 'k6/metrics';
 
 const personCounterMetric = new Counter('person_events');
+const personPumpMetric = new Counter('person_pump');
 
 export const options = {
-    vus: 100,
-    duration: '120s',
+    stages:[
+        { duration: '1m', target: 10},
+        { duration: '2m', target: 50},
+        { duration: '3m', target: 100},
+        { duration: '5m', target: 0},
+    ],
     thresholds: {
       'http_req_duration{status:200}': ['max>=0'],
       'http_req_duration{status:500}': ['max>=0'],
@@ -84,6 +89,7 @@ export default function () {
                 sleep(1);
 
                 http.get(`${baseUrl}api/entity-pump`);
+                personPumpMetric.add(3);
             });
 
             let personEventCounter = 0;

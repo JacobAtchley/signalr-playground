@@ -20,6 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 const bool useServerlessAzureSignalR = false;
 const bool useRedisSessionStore = true;
 const bool useDictionarySessionStore = false;
+const bool useAzureServiceBus = true;
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -85,7 +86,7 @@ builder.Services.AddScheduler();
 builder.Services.AddTransient<UserSessionWatchDog>();
 builder.Services.AddTransient<PersonEntityPump>();
 builder.Services.AddAutoCrud(builder.Configuration, useRedisSessionStore);
-builder.Services.AddRabbitMqMassTransit(builder.Configuration);
+builder.Services.AddBus(builder.Configuration, useAzureServiceBus);
 //builder.Services.AddTransient<MessageBroadcaster>();
 
 builder.Services.AddLitRedis(redis => redis.WithCaching().WithLocking().WithConnectionString(builder.Configuration.GetConnectionString("Redis")));
