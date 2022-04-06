@@ -93,7 +93,7 @@ public class EntityEventSessionStoreRedis<TEntity> : IEntityEventSessionStore<TE
         {
             await _connectionService.UseDbAsync(async (db, ct) =>
             {
-                var values = db.SetScanAsync(key, $"*{connectionId}*");
+                var values = db.SetScanAsync(key, $"{{\"ConnectionId\":\"{connectionId}\"*");
 
                 var valuesToRemove = new List<RedisValue>();
 

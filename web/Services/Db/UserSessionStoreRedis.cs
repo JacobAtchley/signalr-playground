@@ -73,7 +73,7 @@ public class UserSessionStoreRedis : IUserSessionStore
     {
         return _connectionService.UseDbAsync(async (db, ct) =>
         {
-            var values = db.SetScanAsync(KEY, $"*{connectionId}*");
+            var values = db.SetScanAsync(KEY, $"{{\"ConnectionId\":\"{connectionId}\"*");
 
             var valuesToRemove = new List<RedisValue>();
 

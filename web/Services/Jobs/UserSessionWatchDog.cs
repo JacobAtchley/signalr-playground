@@ -23,8 +23,8 @@ public class UserSessionWatchDog : IInvocable
     {
         var cutoff = DateTimeOffset.UtcNow.AddHours(-6);
 
-        await _userSessionStore.RemoveAsync(x => cutoff >= x.LastConnectedDate, default);
-        await _peopleSubscriptions.RemoveConnectionsOlderThanAsync(cutoff, default);
+        //await _userSessionStore.RemoveAsync(x => cutoff >= x.LastConnectedDate, default);
+        //await _peopleSubscriptions.RemoveConnectionsOlderThanAsync(cutoff, default);
 
         _logger.LogInformation("Cleared user sessions");
     }
